@@ -1,0 +1,26 @@
+{
+  "name": "pks-gdansk-oliwa/oop-xml",
+  "type": "library",
+  "description": "OOP Xml reader and writer",
+  "keywords": [
+    "xml",
+    "php5"
+  ],
+  "homepage": "https://github.com/pks-gdansk-oliwa/oop-xml",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Szymon Beringer",
+      "email": "s.beringer@pks-sa.com"
+    }
+  ],
+  "require": {
+    "php": ">=5.5",
+    "ext-dom": "*"
+  },
+  "autoload": {
+    "psr-4": {
+      "PksGdanskOliwa\\OopXml\\": "src/"
+    }
+  }
+}

@@ -25,4 +25,15 @@ interface BuildableInterface
      * @return mixed
      */
     public function parse($dom, $parentNode, $elementNode = null);
+
+    /**
+     * Get Active state of node
+     * @return bool
+     */
+    public function isActive();
+
+    /**
+     * Activate node, and all parents
+     */
+    public function activeNode();
 }

@@ -4,8 +4,7 @@ namespace PksGdanskOliwa\OopXml;
 
 use DOMDocument;
 use PksGdanskOliwa\OopXml\Interfaces\BuildableInterface;
-use PksGdanskOliwa\OopXml\Interfaces\ItemInterface;
-use PksGdanskOliwa\OopXml\Interfaces\NodeInterface;
+use PksGdanskOliwa\OopXml\Store\MultipleElementsStore;
 
 /**
  * Class BaseDocument
@@ -16,7 +15,7 @@ class Document
     protected $_rootNode;
 
     /**
-     * @var DOMDocument $_dom
+     * @var \DOMDocument $_dom
      */
     protected $_dom;
 
@@ -36,7 +35,7 @@ class Document
     }
 
     /**
-     *
+     * Create's root node of xml document
      */
     private function createRootNode()
     {
@@ -52,6 +51,10 @@ class Document
         foreach ($this->getDocumentVariables() as $name => $element) {
             if ($element instanceof BuildableInterface) {
                 $element->build($this, $this->_rootNode);
+            } elseif ($element instanceof MultipleElementsStore) {
+                foreach ($element->get() as $storeElement) {
+                    $storeElement->build($this, $this->_rootNode);
+                }
             }
         }
     }
@@ -64,6 +67,12 @@ class Document
         foreach ($this->getDocumentVariables() as $name => $element) {
             if ($element instanceof BuildableInterface) {
                 $element->parse($this->_dom, $this->_rootNode, $this->_rootNode->getElementsByTagName($element->_name)->item(0));
+            } elseif ($element instanceof MultipleElementsStore) {
+                foreach ($this->_rootNode->getElementsByTagName($element->tagName) as $foundElementNode) {
+                    $item = $element->factory();
+                    $item->parse($this->_dom, $this->_rootNode, $foundElementNode);
+                    $element->add($item);
+                }
             }
         }
     }
@@ -120,7 +129,8 @@ class Document
     }
 
     /**
-     * @return mixed
+     * Returns xml string
+     * @return string
      */
     public function toXML()
     {
@@ -129,10 +139,14 @@ class Document
         return $this->_dom->saveXML();
     }
 
-    public function importXML($source)
+    /**
+     * Imports XML string into OOP
+     * @param string $xmlString
+     */
+    public function importXML($xmlString)
     {
-        $this->_dom = new DOMDocument($this->_version, $this->_encoding);
-        $this->_dom->loadXML($source);
+        $this->_dom = new \DOMDocument($this->_version, $this->_encoding);
+        $this->_dom->loadXML($xmlString);
 
         $this->_rootNode = $this->_dom->firstChild;
 

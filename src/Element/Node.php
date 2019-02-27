@@ -2,10 +2,7 @@
 
 namespace PksGdanskOliwa\OopXml\Element;
 
-use DOMDocument;
-use PksGdanskOliwa\OopXml\Element\Item;
 use PksGdanskOliwa\OopXml\Interfaces\BuildableInterface;
-use PksGdanskOliwa\OopXml\Interfaces\ItemInterface;
 use PksGdanskOliwa\OopXml\Interfaces\NodeInterface;
 use PksGdanskOliwa\OopXml\Store\MultipleElementsStore;
 
@@ -33,14 +30,14 @@ class Node extends BaseElement implements NodeInterface
     {
         $parentNode = parent::build($document, $parentNode);
 
-        foreach ($this->getElementVariables($this) as $element) {
+        foreach ($this->getElementVariables() as $element) {
             if ($element instanceof BuildableInterface) {
                 $this->addChild($element);
             } elseif ($element instanceof MultipleElementsStore) {
                 $this->addChildFromStore($element);
             }
         }
-        
+
         /** @var Node|Item $element */
         foreach ($this->_elements as $element) {
             $element->build($document, $parentNode);

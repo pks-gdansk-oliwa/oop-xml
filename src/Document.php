@@ -3,6 +3,7 @@
 namespace PksGdanskOliwa\OopXml;
 
 use DOMDocument;
+use PksGdanskOliwa\OopXml\Element\Traits\ParserHelper;
 use PksGdanskOliwa\OopXml\Interfaces\BuildableInterface;
 use PksGdanskOliwa\OopXml\Store\MultipleElementsStore;
 
@@ -11,6 +12,8 @@ use PksGdanskOliwa\OopXml\Store\MultipleElementsStore;
  */
 class Document
 {
+    use ParserHelper;
+
     public $_rootElement;
     protected $_rootNode;
 
@@ -48,14 +51,23 @@ class Document
      */
     private function build()
     {
-        foreach ($this->getDocumentVariables() as $name => $element) {
+        foreach ($this->getChildVariables() as $element) {
             if ($element instanceof BuildableInterface) {
                 $element->build($this, $this->_rootNode);
             } elseif ($element instanceof MultipleElementsStore) {
-                foreach ($element->get() as $storeElement) {
-                    $storeElement->build($this, $this->_rootNode);
-                }
+                $this->buildStore($element);
             }
+        }
+    }
+
+    /**
+     * Build store set
+     * @param MultipleElementsStore $store
+     */
+    private function buildStore($store)
+    {
+        foreach ($store->get() as $storeElement) {
+            $storeElement->build($this, $this->_rootNode);
         }
     }
 
@@ -64,30 +76,7 @@ class Document
      */
     private function parse()
     {
-        foreach ($this->getDocumentVariables() as $name => $element) {
-            if ($element instanceof BuildableInterface) {
-                $element->parse($this->_dom, $this->_rootNode->getElementsByTagName($element->_name)->item(0));
-            } elseif ($element instanceof MultipleElementsStore) {
-                foreach ($this->_rootNode->getElementsByTagName($element->getTagName()) as $foundElementNode) {
-                    $item = $element->factory();
-                    $item->parse($this->_dom, $foundElementNode);
-                    $element->add($item);
-                }
-            }
-        }
-    }
-
-    /**
-     * Zwraca elementy dokumentu XML z wykluczeniem zarezerwowanych nazw
-     * @return array
-     */
-    private function getDocumentVariables()
-    {
-        $variables = get_object_vars($this);
-        foreach (['_dom', '_rootElement', '_rootNode', '_version', '_encoding'] as $preservedNodes) {
-            unset($variables[$preservedNodes]);
-        }
-        return $variables;
+        $this->parseChildrenNodes($this->_dom, $this->_rootNode);
     }
 
     /**

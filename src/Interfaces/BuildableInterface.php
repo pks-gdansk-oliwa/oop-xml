@@ -13,7 +13,6 @@ interface BuildableInterface
      * Build's a xml document
      * @param Document         $document
      * @param \DOMElement|null $parentNode
-     * @return \DOMElement
      */
     public function build($document, $parentNode = null);
 

@@ -1,12 +1,11 @@
 <?php
 /**
  * Class Root
- * Created in project promy24.com (2019/02/27)
+ * Created in project OOP-XML(2019/02/27)
  */
 
 namespace PksGdanskOliwa\OopXml\Element;
 
-use PksGdanskOliwa\OopXml\Document;
 use PksGdanskOliwa\OopXml\Interfaces\BuildableInterface;
 
 /**

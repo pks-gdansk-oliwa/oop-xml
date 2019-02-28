@@ -3,15 +3,16 @@
 namespace PksGdanskOliwa\OopXml\Element;
 
 use PksGdanskOliwa\OopXml\Document;
+use PksGdanskOliwa\OopXml\Element\Traits\ParserHelper;
 use PksGdanskOliwa\OopXml\Interfaces\BuildableInterface;
-use PksGdanskOliwa\OopXml\Interfaces\ItemInterface;
-use PksGdanskOliwa\OopXml\Store\MultipleElementsStore;
 
 /**
  * Class BaseElement
  */
 abstract class BaseElement
 {
+    use ParserHelper;
+
     public $_name;
     protected $_schema;
     protected $_attributes = [];
@@ -81,34 +82,6 @@ abstract class BaseElement
     }
 
     /**
-     * Return declared xml nodes
-     * @return array
-     */
-    protected function getElementVariables()
-    {
-        $variables = get_object_vars($this);
-        foreach (array_keys($variables) as $variable) {
-            if (strpos($variable, '_') === 0) {
-                unset($variables[$variable]);
-            }
-        }
-        return $variables;
-    }
-
-    /**
-     * Returns name with XML namespace
-     * @param  Document $document
-     * @return string
-     */
-    protected function getNamespacedName($document)
-    {
-        if ($this->_schema) {
-            return $document->getNamespaceLocalPartBySchema($this->_schema) . ':' . $this->_name;
-        }
-        return $this->_name;
-    }
-
-    /**
      * @inheritdoc
      */
     public function setAttribute($name, $value)
@@ -130,89 +103,80 @@ abstract class BaseElement
      * Build's a xml document
      * @param Document         $document
      * @param \DOMElement|null $parentNode
-     * @return \DOMElement|\DOMDocument
+     * @return \DOMElement|\DOMDocument|null
      */
     public function build($document, $parentNode = null)
     {
         $dom = $document->getDom();
 
         if ($this->isActive()) {
-            $elementNodeValue = isset($this->_value) ? $this->_value : null;
-
             /** @var \DOMElement $elementNode */
-            $elementNode = $dom->createElement($this->getNamespacedName($document), $elementNodeValue);
+            $elementNode = $dom->createElement($this->getNamespacedName($document));
 
-            if ($this->_attributes && count($this->_attributes)) {
-                foreach ($this->_attributes as $an => $av) {
-                    if ($av) {
-                        // prevent rendering empty attributes
-                        $elementNode->setAttribute($an, $av);
-                    }
-                }
-            }
+            $this->buildAttributes($elementNode);
 
             if ($parentNode) {
                 $parentNode->appendChild($elementNode);
-            } else {
-                $dom->appendChild($elementNode);
+                return $elementNode;
             }
-            return $elementNode;
+            $dom->appendChild($elementNode);
+            return $dom;
         }
-        return $dom;
+        return null;
     }
 
     /**
-     * Parses Xml document into OOP-XML classes
+     * @inheritdoc
      * @param \DOMDocument     $dom
      * @param \DOMElement|null $elementNode
      */
     public function parse($dom, $elementNode = null)
     {
         if ($elementNode) {
-            if ($this->_attributes && count($this->_attributes)) {
-                foreach ($this->_attributes as $attributeName => $attributeValue) {
-                    $attrValue = $elementNode->getAttribute($attributeName);
-                    $this->setAttribute($attributeName, $attrValue);
-                }
-            }
+            $this->parseAttributes($elementNode);
+            $this->parseChildrenNodes($dom, $elementNode);
+        }
+    }
 
-            if ($this instanceof ItemInterface && $elementNode->nodeValue) {
-                $this->setValue($elementNode->nodeValue);
-            }
+    /**
+     * Returns name with XML namespace
+     * @param  Document $document
+     * @return string
+     */
+    protected function getNamespacedName($document)
+    {
+        if ($this->_schema) {
+            return $document->getNamespaceLocalPartBySchema($this->_schema) . ':' . $this->_name;
+        }
+        return $this->_name;
+    }
 
-            foreach ($this->getElementVariables() as $name => $oopXmlItem) {
-                //variable can be declared only once, we can fetch only first element from xml
-                if (is_object($oopXmlItem)) {
-                    if ($oopXmlItem instanceof BuildableInterface) {
-                        $nodes = $this->getDomElementsChildByTagName($elementNode, $oopXmlItem->_name);
-                        $oopXmlItem->parse($dom, array_key_exists(0, $nodes) ? $nodes[0] : null);
-                    }
-                    if ($oopXmlItem instanceof MultipleElementsStore) {
-                        foreach ($this->getDomElementsChildByTagName($elementNode, $oopXmlItem->getTagName()) as $nodes) {
-                            $item = $oopXmlItem->factory();
-                            $item->parse($dom, $nodes);
-                            $oopXmlItem->add($item);
-                        }
-                    }
+    /**
+     * Build Attributes on Node
+     * @param \DOMElement $elementNode
+     */
+    private function buildAttributes($elementNode)
+    {
+        if ($this->_attributes && count($this->_attributes)) {
+            foreach ($this->_attributes as $attributeName => $attributeValue) {
+                // prevent rendering empty attributes
+                if ($attributeValue) {
+                    $elementNode->setAttribute($attributeName, $attributeValue);
                 }
             }
         }
     }
 
     /**
-     * Get child elements by tag name
+     * Parses Attributes on Node
      * @param \DOMElement $elementNode
-     * @param string      $tagName
-     * @return array
      */
-    private function getDomElementsChildByTagName($elementNode, $tagName)
+    private function parseAttributes($elementNode)
     {
-        $nodes = [];
-        foreach ($elementNode->childNodes as $node) {
-            if ($node->localName == $tagName) {
-                $nodes[] = $node;
+        if ($this->_attributes && count($this->_attributes)) {
+            foreach ($this->_attributes as $attributeName => $attributeValue) {
+                $this->setAttribute($attributeName, $elementNode->getAttribute($attributeName));
             }
         }
-        return $nodes;
     }
 }

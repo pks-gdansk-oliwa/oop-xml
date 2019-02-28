@@ -29,5 +29,29 @@ class Item extends BaseElement implements ItemInterface
         return $this->_value;
     }
 
+    /**
+     * @inheritDoc
+     */
+    public function build($document, $parentNode = null)
+    {
+        $elementNode = parent::build($document, $parentNode);
+        if ($elementNode) {
+            $elementNode->nodeValue = $this->_value;
+        }
+        return $elementNode;
+    }
+
+    /**
+     * @inheritDoc
+     * @param \DOMElement|null $elementNode
+     */
+    public function parse($dom, $elementNode = null)
+    {
+        parent::parse($dom, $elementNode);
+        if ($elementNode) {
+            $this->setValue($elementNode->nodeValue);
+        }
+    }
+
 
 }

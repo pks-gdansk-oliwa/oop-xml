@@ -2,8 +2,6 @@
 
 namespace PksGdanskOliwa\OopXml\Interfaces;
 
-use PksGdanskOliwa\OopXml\Document;
-
 /**
  * Interface ElementInterface
  */

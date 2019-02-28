@@ -28,19 +28,20 @@ class Node extends BaseElement implements NodeInterface
      */
     public function build($document, $parentNode = null)
     {
-        $parentNode = parent::build($document, $parentNode);
-
-        foreach ($this->getElementVariables() as $element) {
-            if ($element instanceof BuildableInterface) {
-                $this->addChild($element);
-            } elseif ($element instanceof MultipleElementsStore) {
-                $this->addChildFromStore($element);
+        $node = parent::build($document, $parentNode);
+        if ($node) {
+            foreach ($this->getChildVariables() as $element) {
+                if ($element instanceof BuildableInterface) {
+                    $this->addChild($element);
+                } elseif ($element instanceof MultipleElementsStore) {
+                    $this->addChildFromStore($element);
+                }
             }
-        }
 
-        /** @var Node|Item $element */
-        foreach ($this->_elements as $element) {
-            $element->build($document, $parentNode);
+            /** @var Node|Item $element */
+            foreach ($this->_elements as $element) {
+                $element->build($document, $node);
+            }
         }
     }
 

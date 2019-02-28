@@ -26,11 +26,4 @@ interface NodeInterface extends BuildableInterface
      * @return array[ElementInterface|NodeInterface]
      */
     public function elements();
-
-    /**
-     * Set attribute to XML element
-     * @param string $name
-     * @param string $value
-     */
-    public function setAttribute($name, $value);
 }

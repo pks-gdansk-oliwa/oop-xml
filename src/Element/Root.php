@@ -46,4 +46,20 @@ class Root implements BuildableInterface
         return null;
     }
 
+    /**
+     * @inheritDoc
+     */
+    public function setAttribute($name, $value)
+    {
+        return null;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function getAttribute($name)
+    {
+        return null;
+    }
+
 }

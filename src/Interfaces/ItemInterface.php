@@ -14,11 +14,10 @@ interface ItemInterface extends BuildableInterface
      * @param string $_value
      */
     public function setValue($_value);
-    
+
+
     /**
-     * Set attribute to XML element
-     * @param string $name
-     * @param string $value
+     * Get value of XML element
      */
-    public function setAttribute($name, $value);
+    public function getValue();
 }

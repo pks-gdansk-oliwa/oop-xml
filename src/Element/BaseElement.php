@@ -109,15 +109,22 @@ abstract class BaseElement
     }
 
     /**
-     * Set attribute to XML element
-     * @param string $name
-     * @param string $value
+     * @inheritdoc
      */
     public function setAttribute($name, $value)
     {
         $this->_attributes[$name] = $value;
         $this->activeNode();
     }
+
+    /**
+     * @inheritdoc
+     */
+    public function getAttribute($name)
+    {
+        return isset($this->_attributes[$name]) ? $this->_attributes[$name] : null;
+    }
+
 
     /**
      * Build's a xml document

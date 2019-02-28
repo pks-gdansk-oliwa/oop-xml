@@ -35,4 +35,18 @@ interface BuildableInterface
      * Activate node, and all parents
      */
     public function activeNode();
+
+    /**
+     * Set attribute to XML element
+     * @param string $name
+     * @param string $value
+     */
+    public function setAttribute($name, $value);
+
+    /**
+     * Get attribute from XML element
+     * @param string $name
+     * @return string|null
+     */
+    public function getAttribute($name);
 }

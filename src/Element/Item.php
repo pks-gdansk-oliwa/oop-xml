@@ -20,4 +20,14 @@ class Item extends BaseElement implements ItemInterface
         $this->activeNode();
         return $this;
     }
+
+    /**
+     * @inheritdoc
+     */
+    public function getValue()
+    {
+        return $this->_value;
+    }
+
+
 }

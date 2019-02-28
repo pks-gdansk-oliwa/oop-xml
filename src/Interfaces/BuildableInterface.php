@@ -20,11 +20,10 @@ interface BuildableInterface
     /**
      * Parses xml document to object
      * @param                  $dom
-     * @param \DOMElement      $parentNode
      * @param \DOMElement|null $elementNode
      * @return mixed
      */
-    public function parse($dom, $parentNode, $elementNode = null);
+    public function parse($dom, $elementNode = null);
 
     /**
      * Get Active state of node

@@ -66,11 +66,11 @@ class Document
     {
         foreach ($this->getDocumentVariables() as $name => $element) {
             if ($element instanceof BuildableInterface) {
-                $element->parse($this->_dom, $this->_rootNode, $this->_rootNode->getElementsByTagName($element->_name)->item(0));
+                $element->parse($this->_dom, $this->_rootNode->getElementsByTagName($element->_name)->item(0));
             } elseif ($element instanceof MultipleElementsStore) {
-                foreach ($this->_rootNode->getElementsByTagName($element->tagName) as $foundElementNode) {
+                foreach ($this->_rootNode->getElementsByTagName($element->getTagName()) as $foundElementNode) {
                     $item = $element->factory();
-                    $item->parse($this->_dom, $this->_rootNode, $foundElementNode);
+                    $item->parse($this->_dom, $foundElementNode);
                     $element->add($item);
                 }
             }

@@ -25,7 +25,7 @@ class Root implements BuildableInterface
     /**
      * @inheritDoc
      */
-    public function parse($dom, $parentNode, $elementNode = null)
+    public function parse($dom, $elementNode = null)
     {
         return null;
     }

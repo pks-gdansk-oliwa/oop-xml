@@ -53,6 +53,16 @@ class MultipleElementsStore
     }
 
     /**
+     * Get single element
+     * @param int $index
+     * @return mixed
+     */
+    public function item($index)
+    {
+        return isset($this->elements[$index]) ? $this->elements[$index] : null;
+    }
+
+    /**
      * Get OOP-XML class name
      * @return string
      */

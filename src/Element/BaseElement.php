@@ -137,7 +137,10 @@ abstract class BaseElement
 
             if ($this->_attributes && count($this->_attributes)) {
                 foreach ($this->_attributes as $an => $av) {
-                    $elementNode->setAttribute($an, $av);
+                    if ($av) {
+                        // prevent rendering empty attributes
+                        $elementNode->setAttribute($an, $av);
+                    }
                 }
             }
 
@@ -154,34 +157,35 @@ abstract class BaseElement
     /**
      * Parses Xml document into OOP-XML classes
      * @param \DOMDocument     $dom
-     * @param \DOMElement      $parentNode
      * @param \DOMElement|null $elementNode
      */
-    public function parse($dom, $parentNode, $elementNode = null)
+    public function parse($dom, $elementNode = null)
     {
-        if ($this->_attributes && count($this->_attributes)) {
-            foreach ($this->_attributes as $attributeName => $attributeValue) {
-                $attrValue = $elementNode->getAttribute($attributeName);
-                $this->setAttribute($attributeName, $attrValue);
-            }
-        }
-
-        if ($this instanceof ItemInterface && $elementNode && $elementNode->nodeValue) {
-            $this->setValue($elementNode->nodeValue);
-        }
-
-        foreach ($this->getElementVariables() as $name => $oopXmlItem) {
-            //variable can be declared only once, we can fetch only first element from xml
-            if (is_object($oopXmlItem) && $elementNode) {
-                if ($oopXmlItem instanceof BuildableInterface) {
-                    $nodes = $this->getDomElementsChildByTagName($elementNode, $oopXmlItem->_name);
-                    $oopXmlItem->parse($dom, $elementNode, array_key_exists(0, $nodes) ? $nodes[0] : null);
+        if ($elementNode) {
+            if ($this->_attributes && count($this->_attributes)) {
+                foreach ($this->_attributes as $attributeName => $attributeValue) {
+                    $attrValue = $elementNode->getAttribute($attributeName);
+                    $this->setAttribute($attributeName, $attrValue);
                 }
-                if ($oopXmlItem instanceof MultipleElementsStore) {
-                    foreach ($this->getDomElementsChildByTagName($elementNode, $oopXmlItem->getTagName()) as $nodes) {
-                        $item = $oopXmlItem->factory();
-                        $item->parse($dom, $elementNode, $nodes);
-                        $oopXmlItem->add($item);
+            }
+
+            if ($this instanceof ItemInterface && $elementNode->nodeValue) {
+                $this->setValue($elementNode->nodeValue);
+            }
+
+            foreach ($this->getElementVariables() as $name => $oopXmlItem) {
+                //variable can be declared only once, we can fetch only first element from xml
+                if (is_object($oopXmlItem)) {
+                    if ($oopXmlItem instanceof BuildableInterface) {
+                        $nodes = $this->getDomElementsChildByTagName($elementNode, $oopXmlItem->_name);
+                        $oopXmlItem->parse($dom, array_key_exists(0, $nodes) ? $nodes[0] : null);
+                    }
+                    if ($oopXmlItem instanceof MultipleElementsStore) {
+                        foreach ($this->getDomElementsChildByTagName($elementNode, $oopXmlItem->getTagName()) as $nodes) {
+                            $item = $oopXmlItem->factory();
+                            $item->parse($dom, $nodes);
+                            $oopXmlItem->add($item);
+                        }
                     }
                 }
             }
